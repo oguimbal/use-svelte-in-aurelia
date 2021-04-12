@@ -1,0 +1,1 @@
+<div>Other svelte component</div>

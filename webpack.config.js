@@ -31,7 +31,7 @@ const cssRules = [
 
 module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, host } = {}) => ({
   resolve: {
-    extensions: ['.js'],
+    extensions: ['.mjs', '.js', '.svelte'],
     modules: [srcDir, 'node_modules'],
 
     alias: {
@@ -42,8 +42,10 @@ module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, h
       // https://github.com/aurelia/binding/issues/702
       // Enforce single aurelia-binding, to avoid v1/v2 duplication due to
       // out-of-date dependencies on 3rd party aurelia plugins
-      'aurelia-binding': path.resolve(__dirname, 'node_modules/aurelia-binding')
-    }
+      'aurelia-binding': path.resolve(__dirname, 'node_modules/aurelia-binding'),
+      svelte: path.resolve('node_modules', 'svelte'),
+    },
+    mainFields: ['svelte', 'browser', 'module', 'main'],
   },
   entry: {
     app: [
@@ -231,6 +233,20 @@ module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, h
       { test: /environment\.json$/i, use: [
         {loader: "app-settings-loader", options: {env: production ? 'production' : 'development' }},
       ]},
+      {
+        test: /\.svelte$/,
+        use: [//'babel-loader',
+        './svelte-aurelia',
+         'svelte-loader'],
+        // use: 'svelte-loader'
+      },
+      {
+        // required to prevent errors from Svelte on Webpack 5+, omit on Webpack 4
+        test: /node_modules\/svelte\/.*\.mjs$/,
+        resolve: {
+          // fullySpecified: false
+        }
+      }
     ]
   },
   plugins: [
